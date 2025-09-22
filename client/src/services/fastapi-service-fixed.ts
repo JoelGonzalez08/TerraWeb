@@ -8,7 +8,7 @@ export interface FastAPIRequest {
   start: string;  // formato: "YYYY-MM-DD"
   end: string;    // formato: "YYYY-MM-DD"
   mode: "heatmap";
-  index: "rgb_composite" | "ndvi" | "ndwi" | "evi" | "savi" | "gci";
+  index: "rgb_composite" | "ndvi" | "ndwi" | "ndmi" | "evi" | "savi" | "gci";
   cloud_pct: number;  // 0-100
 }
 
@@ -20,7 +20,7 @@ export interface TimeSeriesRequest {
   height_m: number;
   start: string;  // formato: "YYYY-MM-DD"
   end: string;    // formato: "YYYY-MM-DD"
-  index: "ndvi" | "ndwi" | "evi" | "savi" | "gci";
+  index: "ndvi" | "ndwi" | "ndmi" | "evi" | "savi" | "gci";
 }
 
 export interface SeriesData {
@@ -67,7 +67,7 @@ export interface TimeSeriesResponse {
 export class FastAPIService {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:8000') {
+  constructor(baseUrl: string = 'http://172.17.16.104:8000') {
     this.baseUrl = baseUrl;
   }
 
@@ -333,4 +333,6 @@ export class FastAPIService {
   }
 }
 
-export const fastapiService = new FastAPIService('http://localhost:8000');
+export const fastapiService = new FastAPIService(
+  import.meta.env.VITE_FASTAPI_URL || 'http://172.17.16.104:8000'
+);

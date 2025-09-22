@@ -34,6 +34,18 @@ const legendConfig = {
       { min: 0.6, max: 1, color: "#0000FF", label: "Agua", description: "Cuerpos de agua" }
     ]
   },
+  ndmi: {
+    title: "NDMI - Índice de Humedad",
+    description: "Contenido de humedad en la vegetación",
+    ranges: [
+      { min: -1, max: -0.4, color: "#8B0000", label: "Muy seco", description: "Vegetación muy estresada" },
+      { min: -0.4, max: -0.2, color: "#CD853F", label: "Seco", description: "Vegetación estresada" },
+      { min: -0.2, max: 0, color: "#DAA520", label: "Moderadamente seco", description: "Estrés hídrico moderado" },
+      { min: 0, max: 0.2, color: "#9ACD32", label: "Moderadamente húmedo", description: "Humedad moderada" },
+      { min: 0.2, max: 0.4, color: "#32CD32", label: "Húmedo", description: "Buena humedad" },
+      { min: 0.4, max: 1, color: "#006400", label: "Muy húmedo", description: "Excelente humedad" }
+    ]
+  },
   evi: {
     title: "EVI - Índice de Vegetación Mejorado",
     description: "Vegetación con corrección atmosférica",

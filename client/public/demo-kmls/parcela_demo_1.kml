@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Parcelas Triunfo Verde Chiapas</name>
+    <description/>
+    <Style id="icon-1899-0288D1-normal">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1899-0288D1-highlight">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1899-0288D1">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-0288D1-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-0288D1-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="poly-000000-1200-77-nodesc-normal">
+      <LineStyle>
+        <color>ff000000</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d000000</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="poly-000000-1200-77-nodesc-highlight">
+      <LineStyle>
+        <color>ff000000</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d000000</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="poly-000000-1200-77-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-000000-1200-77-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-000000-1200-77-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>Poligono parcela Oscar</name>
+      <Placemark>
+        <name>Estación de monitoreo climática</name>
+        <description>(15.7845002, -92.7611756)</description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <Point>
+          <coordinates>
+            -92.7611756,15.7845002,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Parcela Oscar</name>
+        <styleUrl>#poly-000000-1200-77-nodesc</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                -92.7571833,15.7859394,0
+                -92.757414,15.7862543,0
+                -92.7576822,15.7860685,0
+                -92.757827,15.7864556,0
+                -92.7575427,15.7867808,0
+                -92.7575856,15.7872506,0
+                -92.7579021,15.7872144,0
+                -92.7582133,15.7866105,0
+                -92.759034,15.786022,0
+                -92.7593827,15.7857174,0
+                -92.7596509,15.7857845,0
+                -92.7601981,15.7859807,0
+                -92.7609062,15.7862646,0
+                -92.761212,15.7848863,0
+                -92.7624351,15.7844321,0
+                -92.7624619,15.7841688,0
+                -92.7630788,15.7839933,0
+                -92.7633309,15.7833377,0
+                -92.7623439,15.7830176,0
+                -92.7620435,15.7833996,0
+                -92.761625,15.7835597,0
+                -92.7610886,15.7835752,0
+                -92.7604395,15.7837249,0
+                -92.7603215,15.7838642,0
+                -92.7601927,15.7838281,0
+                -92.7601284,15.7837197,0
+                -92.7599996,15.7838746,0
+                -92.7597958,15.7841275,0
+                -92.7596509,15.7842049,0
+                -92.759254,15.7839881,0
+                -92.7588946,15.7838023,0
+                -92.7585834,15.7837197,0
+                -92.7582723,15.7837042,0
+                -92.7578109,15.7837249,0
+                -92.7575481,15.7840139,0
+                -92.7574032,15.7844785,0
+                -92.757768,15.7846437,0
+                -92.7578109,15.7851135,0
+                -92.7573657,15.7851754,0
+                -92.7572906,15.7853561,0
+                -92.7574676,15.7858104,0
+                -92.7571833,15.7859394,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

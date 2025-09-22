@@ -323,6 +323,10 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
       console.log(`📅 Period: ${startDate} to ${endDate}`);
       console.log(`📈 Index: ${index}, Cloud threshold: ${cloudPct}%`);
       
+      // Normalizar el índice a minúsculas para evitar problemas de coincidencia
+      const normalizedIndex = index.toLowerCase();
+      console.log(`🔄 Normalized index: ${normalizedIndex}`);
+      
       const params: FastAPIRequest = {
         lon: coordinates.lng,
         lat: coordinates.lat,
@@ -331,7 +335,7 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
         start: startDate,
         end: endDate,
         mode: "heatmap",
-        index: index as any,
+        index: normalizedIndex as any,
         cloud_pct: cloudPct
       };
 
@@ -371,6 +375,10 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
       console.log(`📅 Period: ${startDate} to ${endDate}`);
       console.log(`📈 Index: ${index}`);
       
+      // Normalizar el índice a minúsculas para evitar problemas de coincidencia
+      const normalizedIndex = index.toLowerCase();
+      console.log(`🔄 Normalized index for time-series: ${normalizedIndex}`);
+      
       const params: TimeSeriesRequest = {
         lon: coordinates.lng,
         lat: coordinates.lat,
@@ -378,7 +386,7 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
         height_m: heightM,
         start: startDate,
         end: endDate,
-        index: index as any
+        index: normalizedIndex as any
       };
 
       console.log('📦 Time-series params:', JSON.stringify(params, null, 2));

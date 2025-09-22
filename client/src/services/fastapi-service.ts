@@ -8,7 +8,7 @@ export interface FastAPIRequest {
   start: string;  // formato: "YYYY-MM-DD"
   end: string;    // formato: "YYYY-MM-DD"
   mode: "heatmap";
-  index: "rgb_composite" | "ndvi" | "ndwi" | "evi" | "savi" | "gci";
+  index: "rgb_composite" | "ndvi" | "ndwi" | "ndmi" | "evi" | "savi" | "gci";
   cloud_pct: number;  // 0-100
 }
 
