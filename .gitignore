@@ -1,0 +1,85 @@
+# Dependencias
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build y distribución
+dist
+build
+.next/
+out/
+
+# Variables de entorno y configuración sensible
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos específicos del sistema
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos del servidor
+server/public
+vite.config.ts.*
+
+# Archivos comprimidos
+*.tar.gz
+*.zip
+
+# Credenciales sensibles (Google Earth Engine y otros)
+server/gee-credentials.json
+gee-credentials.json
+**/gee-credentials.json
+credentials.json
+**/credentials.json
+
+# Directorios de desarrollo
+/.local
+.replit
+
+# Cache y archivos temporales
+.cache/
+.parcel-cache/
+.vite/
+*.tsbuildinfo
+.eslintcache
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Logs
+logs
+*.log
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Datos subidos por usuarios
+uploads/*
+!uploads/.gitkeep
+
+# Base de datos local
+*.sqlite
+*.sqlite3
+*.db
+
+# Archivos de prueba con datos sensibles
+test-data/
+*.test.env
