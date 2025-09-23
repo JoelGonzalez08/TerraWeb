@@ -1,5 +1,6 @@
 // Tipos para la API de FastAPI (basados en tu esquema)
 import { getAuthHeaders } from '@/hooks/use-auth';
+import { FASTAPI_BASE_URL } from '@/config/constants';
 
 export interface FastAPIRequest {
   geometry?: Record<string, any>;  // opcional
@@ -69,7 +70,7 @@ export interface TimeSeriesResponse {
 export class FastAPIService {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:8000') {
+  constructor(baseUrl: string = FASTAPI_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
@@ -97,6 +98,28 @@ export class FastAPIService {
     }
     if (params.cloud_pct < 0 || params.cloud_pct > 100) {
       errors.push('cloud_pct debe estar entre 0 y 100');
+    }
+
+    // Validar fechas más específicamente
+    if (params.start && params.end) {
+      const startDate = new Date(params.start);
+      const endDate = new Date(params.end);
+      const now = new Date();
+
+      if (endDate > now) {
+        errors.push('La fecha de fin no puede ser futura');
+      }
+      if (startDate > now) {
+        errors.push('La fecha de inicio no puede ser futura');
+      }
+      if (startDate >= endDate) {
+        errors.push('La fecha de inicio debe ser anterior a la fecha de fin');
+      }
+      
+      const daysDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysDiff < 1) {
+        errors.push('El rango de fechas debe ser de al menos 1 día');
+      }
     }
 
     if (errors.length > 0) {
@@ -297,8 +320,24 @@ export class FastAPIService {
           const errorData = await response.json();
           console.error('❌ Error response from FastAPI:', errorData);
           
+          // Manejar errores específicos de Google Earth Engine
+          if (errorData.detail && typeof errorData.detail === 'string') {
+            if (errorData.detail.includes("Parameter 'image' is required") || 
+                errorData.detail.includes("Collection contains no images")) {
+              errorMessage = `No se encontraron imágenes satelitales para el rango de fechas seleccionado (${params.start} - ${params.end}). 
+                             Sugerencias:
+                             • Intenta con un rango de fechas más amplio
+                             • Verifica que las fechas sean posteriores a 2015-06-23 (inicio de Sentinel-2)
+                             • Algunas áreas pueden tener menos cobertura de imágenes disponibles`;
+            } else if (errorData.detail.includes("date")) {
+              errorMessage = `Error en las fechas: ${errorData.detail}. 
+                             Las fechas deben estar en formato YYYY-MM-DD y la fecha inicial debe ser anterior a la final.`;
+            } else {
+              errorMessage = errorData.detail;
+            }
+          }
           // Extraer detalles específicos del error 422
-          if (response.status === 422 && errorData.detail) {
+          else if (response.status === 422 && errorData.detail) {
             if (Array.isArray(errorData.detail)) {
               const validationErrors = errorData.detail.map((err: any) => 
                 `Campo '${err.loc?.join('.')}': ${err.msg} (valor recibido: ${err.input})`
@@ -338,4 +377,4 @@ export class FastAPIService {
   }
 }
 
-export const fastapiService = new FastAPIService('http://localhost:8000');
+export const fastapiService = new FastAPIService(FASTAPI_BASE_URL);

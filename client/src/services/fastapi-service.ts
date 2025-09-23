@@ -1,3 +1,5 @@
+import { FASTAPI_BASE_URL } from '../config/constants';
+
 // Tipos para la API de FastAPI (basados en tu esquema)
 export interface FastAPIRequest {
   geometry?: Record<string, any>;  // opcional
@@ -30,7 +32,7 @@ export interface FastAPIResponse {
 export class FastAPIService {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:8000') {
+  constructor(baseUrl: string = FASTAPI_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
@@ -142,4 +144,4 @@ export class FastAPIService {
   }
 }
 
-export const fastapiService = new FastAPIService('http://localhost:8000');
+export const fastapiService = new FastAPIService(FASTAPI_BASE_URL);

@@ -35,7 +35,7 @@ const legendConfig = {
     ]
   },
   ndmi: {
-    title: "NDMI - Índice de Humedad",
+    title: "NDMI - Nivel de estrés hídrico",
     description: "Contenido de humedad en la vegetación",
     ranges: [
       { min: -1, max: -0.4, color: "#8B0000", label: "Muy seco", description: "Vegetación muy estresada" },

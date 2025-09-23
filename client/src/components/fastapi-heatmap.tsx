@@ -155,13 +155,17 @@ function AnalysisMarkers({
     centerMarker.addTo(map);
 
     // Crear un rectángulo para mostrar el área de análisis
-    // Convertir metros a grados aproximadamente (muy aproximado, solo para visualización)
-    const latOffset = (widthM / 111320); // 1 grado ≈ 111.32 km
-    const lngOffset = (heightM / (111320 * Math.cos(coordinates.lat * Math.PI / 180)));
+    // Convertir metros a grados con mayor precisión
+    const latOffsetM = heightM / 2; // heightM corresponde a la dimensión Norte-Sur
+    const lngOffsetM = widthM / 2;  // widthM corresponde a la dimensión Este-Oeste
+    
+    // Conversión más precisa de metros a grados
+    const latOffset = latOffsetM / 111320; // 1 grado lat ≈ 111.32 km
+    const lngOffset = lngOffsetM / (111320 * Math.cos(coordinates.lat * Math.PI / 180)); // ajustado por latitud
 
     const bounds = [
-      [coordinates.lat - latOffset/2, coordinates.lng - lngOffset/2],
-      [coordinates.lat + latOffset/2, coordinates.lng + lngOffset/2]
+      [coordinates.lat - latOffset, coordinates.lng - lngOffset],
+      [coordinates.lat + latOffset, coordinates.lng + lngOffset]
     ] as L.LatLngBoundsExpression;
 
     const analysisArea = L.rectangle(bounds, {
@@ -215,12 +219,15 @@ function MapUpdater({
       map.setView(center);
       
       // Ajustar zoom basado en el área de análisis
-      const latOffset = (widthM / 111320);
-      const lngOffset = (heightM / (111320 * Math.cos(center[0] * Math.PI / 180)));
+      const latOffsetM = heightM / 2; // heightM corresponde a la dimensión Norte-Sur
+      const lngOffsetM = widthM / 2;  // widthM corresponde a la dimensión Este-Oeste
+      
+      const latOffset = latOffsetM / 111320; // 1 grado lat ≈ 111.32 km
+      const lngOffset = lngOffsetM / (111320 * Math.cos(center[0] * Math.PI / 180)); // ajustado por latitud
       
       const bounds = [
-        [center[0] - latOffset/2, center[1] - lngOffset/2],
-        [center[0] + latOffset/2, center[1] + lngOffset/2]
+        [center[0] - latOffset, center[1] - lngOffset],
+        [center[0] + latOffset, center[1] + lngOffset]
       ] as L.LatLngBoundsExpression;
       
       // Ajustar la vista para que el área sea visible con padding
@@ -250,12 +257,12 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
   const [mapZoom, setMapZoom] = useState<number>(13);
   const [shouldUpdateView, setShouldUpdateView] = useState<boolean>(true);
   
-  // Estados para configuración de FastAPI - Valores fijos
-  const widthM = 1000;   // Área fija 1000m
-  const heightM = 1000;  // Área fija 1000m
+  // Estados para configuración de FastAPI
+  const [widthM, setWidthM] = useState<number>(1000);   // Área inicial 1000m
+  const [heightM, setHeightM] = useState<number>(1000); // Área inicial 1000m
   const [startDate, setStartDate] = useState<string>("2023-01-01");
   const [endDate, setEndDate] = useState<string>("2023-12-31");
-  const [index, setIndex] = useState<string>("");
+  const [index, setIndex] = useState<string>("none");
   const cloudPct = 30;   // Filtro de nubes fijo en 30%
   
   // Configuraciones fijas de visualización
@@ -313,6 +320,13 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
 
   // Load data from FastAPI
   const loadHeatmapData = async () => {
+    // Si está seleccionada la opción "none", limpiar el mapa de calor
+    if (index === 'none') {
+      setTileUrl(null);
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
@@ -360,7 +374,7 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
 
   // Nueva función para cargar solo time-series
   const loadTimeSeriesData = async () => {
-    if (!index) {
+    if (!index || index === 'none') {
       setError('Debe seleccionar un índice para generar la serie temporal');
       return;
     }
@@ -442,10 +456,68 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
 
   const handleKMLUpload = (data: ParcelData) => {
     setParcelData(data);
+    
+    // Procesar automáticamente las coordenadas del polígono
+    if (data && data.bounds) {
+      // Calcular el centro del polígono
+      const centerLat = (data.bounds.north + data.bounds.south) / 2;
+      const centerLng = (data.bounds.east + data.bounds.west) / 2;
+      
+      // Calcular las dimensiones aproximadas del área
+      // Conversión aproximada de grados a metros (depende de la latitud)
+      const latDiffKm = (data.bounds.north - data.bounds.south) * 111; // 1 grado ≈ 111 km
+      const lngDiffKm = (data.bounds.east - data.bounds.west) * 111 * Math.cos(centerLat * Math.PI / 180);
+      
+      // Convertir a metros y usar el 100% del área para cubrir todo el polígono
+      const areaWidthM = Math.round(lngDiffKm * 1000);
+      const areaHeightM = Math.round(latDiffKm * 1000);
+      
+      console.log(`🎯 KML procesado - Centro: ${centerLat}, ${centerLng}`);
+      console.log(`📐 Dimensiones calculadas: ${areaWidthM}m x ${areaHeightM}m (100% cobertura)`);
+      console.log(`📊 Área KML: ${data.area_hectares} hectáreas`);
+      console.log(`📊 Área análisis: ${((Math.min(areaWidthM, 10000) * Math.min(areaHeightM, 10000)) / 10000).toFixed(2)} hectáreas`);
+      
+      // Actualizar las coordenadas y dimensiones
+      setCoordinates({ lat: centerLat, lng: centerLng });
+      setWidthM(Math.min(areaWidthM, 10000)); // Máximo 10km para parcelas grandes
+      setHeightM(Math.min(areaHeightM, 10000)); // Máximo 10km para parcelas grandes
+      
+      // Procesar automáticamente después de un pequeño delay
+      setTimeout(() => {
+        // Si hay un índice seleccionado (no "none"), generar el heatmap automáticamente
+        if (index && index !== 'none') {
+          console.log(`🚀 Generando heatmap automáticamente con índice: ${index}`);
+          // El useEffect se encargará de cargar los datos automáticamente
+        } else {
+          // Si no hay índice seleccionado, seleccionar NDVI por defecto
+          console.log(`🌱 Seleccionando NDVI por defecto para procesar KML`);
+          setIndex('ndvi');
+        }
+      }, 1000); // Delay de 1 segundo para que se actualice el mapa
+    }
   };
 
   const handleClearParcel = () => {
     setParcelData(null);
+    // Restablecer a valores por defecto completamente
+    setIndex('none');
+    setTileUrl(null);
+    setWidthM(1000);
+    setHeightM(1000);
+    setSeriesData([]);
+    setError(null);
+    setLoading(false);
+    
+    // Restablecer coordenadas a valores por defecto
+    setCoordinates({
+      lat: 15.7845002,     
+      lng: -92.7611756
+    });
+    
+    // Forzar actualización de la vista del mapa
+    setShouldUpdateView(true);
+    
+    console.log(`🧹 Parcela limpiada completamente, restableciendo todos los valores por defecto`);
   };
 
   const handleMapReady = (mapInstance: L.Map) => {
@@ -495,7 +567,15 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
 
       return () => clearTimeout(timeoutId);
     }
-  }, [index, startDate, endDate, coordinates.lat, coordinates.lng, isMounted]);
+  }, [index, startDate, endDate, coordinates.lat, coordinates.lng, widthM, heightM, isMounted]);
+
+  // Forzar actualización del mapa cuando se restablecen las dimensiones
+  useEffect(() => {
+    if (widthM === 1000 && heightM === 1000 && !parcelData) {
+      // Esto indica que se acaba de limpiar la parcela
+      setShouldUpdateView(true);
+    }
+  }, [widthM, heightM, parcelData]);
 
   const mapHeight = isMobile ? "350px" : "450px"; // Reducido un poco en desktop
   const containerHeight = isMobile ? "auto" : "600px"; // Altura fija en desktop para aspecto rectangular
@@ -569,6 +649,38 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
                   </div>
                 </div>
 
+                {/* Dimensiones del área */}
+                <div className="space-y-2">
+                  <Label className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>📐 Área de Análisis</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="widthM" className="text-xs">Ancho (m)</Label>
+                      <Input
+                        id="widthM"
+                        type="number"
+                        step="100"
+                        value={widthM}
+                        onChange={(e) => setWidthM(parseInt(e.target.value) || 1000)}
+                        className={`${isMobile ? 'h-7 text-xs' : 'h-8'}`}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="heightM" className="text-xs">Alto (m)</Label>
+                      <Input
+                        id="heightM"
+                        type="number"
+                        step="100"
+                        value={heightM}
+                        onChange={(e) => setHeightM(parseInt(e.target.value) || 1000)}
+                        className={`${isMobile ? 'h-7 text-xs' : 'h-8'}`}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Área total: {((widthM * heightM) / 10000).toFixed(2)} hectáreas
+                  </div>
+                </div>
+
                 {/* Rango de fechas */}
                 <div className="space-y-2">
                   <Label className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>📅 Período</Label>
@@ -604,9 +716,11 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
                       <SelectValue placeholder="Seleccionar parámetro..." />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">Ninguno (Solo mapa base)</SelectItem>
                       {/* <SelectItem value="rgb">RGB Composite</SelectItem> */}
                       <SelectItem value="ndvi">NDVI (Vegetación)</SelectItem>
                       <SelectItem value="ndwi">NDWI (Agua)</SelectItem>
+                      <SelectItem value="ndmi">NDMI (Humedad)</SelectItem>
                       <SelectItem value="evi">EVI (Vegetación Mejorada)</SelectItem>
                       <SelectItem value="savi">SAVI (Suelo Ajustado)</SelectItem>
                       {/* <SelectItem value="gci">GCI (Clorofila Verde)</SelectItem> */}

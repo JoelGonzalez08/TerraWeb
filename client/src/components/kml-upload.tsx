@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, MapPin, Trash2, FileText, CheckCircle, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeaders } from "@/hooks/use-auth";
+import { FASTAPI_BASE_URL } from "@/config/constants";
 
 interface ParcelData {
   success: boolean;
@@ -30,8 +31,6 @@ interface KMLUploadProps {
   compact?: boolean;
 }
 
-const FASTAPI_BASE_URL = 'http://localhost:8000';
-
 // KML precargados disponibles
 const PRELOADED_KML_OPTIONS = [
   {
@@ -40,6 +39,13 @@ const PRELOADED_KML_OPTIONS = [
     description: 'Valle Central - Cultivos mixtos',
     filename: 'parcela_demo_1.kml',
     path: '/demo-kmls/parcela_demo_1.kml'
+  },
+  {
+    id: 'parcela_demo_2',
+    name: 'Parcela Demo 2',
+    description: 'Zona Norte - Agricultura intensiva',
+    filename: 'parcela_demo_2.kml',
+    path: '/demo-kmls/parcela_demo_2.kml'
   }
 ];
 
@@ -48,6 +54,19 @@ export default function KMLUpload({ onParcelLoaded, currentParcel, onClearParcel
   const [selectedPreloadedKML, setSelectedPreloadedKML] = useState<string>("");
   const [isLoadingPreloaded, setIsLoadingPreloaded] = useState(false);
   const { toast } = useToast();
+
+  // Función interna para limpiar el estado del componente
+  const handleClearParcelInternal = () => {
+    // Limpiar estados internos del componente
+    setSelectedPreloadedKML("");
+    setIsUploading(false);
+    setIsLoadingPreloaded(false);
+    
+    // Llamar a la función de limpieza del componente padre
+    onClearParcel();
+    
+    console.log('🧹 KMLUpload: Estado interno limpiado');
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -268,7 +287,7 @@ export default function KMLUpload({ onParcelLoaded, currentParcel, onClearParcel
                   variant="ghost"
                   size="sm"
                   className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={onClearParcel}
+                  onClick={handleClearParcelInternal}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -366,7 +385,7 @@ export default function KMLUpload({ onParcelLoaded, currentParcel, onClearParcel
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={onClearParcel}
+                    onClick={handleClearParcelInternal}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                   >
                     <Trash2 className="h-3 w-3" />

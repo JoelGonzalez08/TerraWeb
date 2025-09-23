@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { FASTAPI_BASE_URL } from "@/config/constants";
 
 // Tipo de usuario para el frontend (sin password)
 export type User = {
@@ -13,8 +14,6 @@ export type User = {
   username: string;
   role: string;
 };
-
-const FASTAPI_BASE_URL = 'http://localhost:8000';
 
 // Helper para obtener headers de autorización
 export function getAuthHeaders(): Record<string, string> {
