@@ -166,7 +166,14 @@ export class FastAPIService {
         params: computeParams
       });
       
-      console.log('📦 Time-series JSON payload:');
+      console.log('� DEBUG - Service level date verification:');
+      console.log(`  - Original params.start: "${params.start}"`);
+      console.log(`  - Original params.end: "${params.end}"`);
+      console.log(`  - computeParams.start: "${computeParams.start}"`);
+      console.log(`  - computeParams.end: "${computeParams.end}"`);
+      console.log(`  - Dates match original? start=${computeParams.start === params.start}, end=${computeParams.end === params.end}`);
+      
+      console.log('�📦 Time-series JSON payload:');
       console.log(JSON.stringify(computeParams, null, 2));
 
       const response = await fetch(`${this.baseUrl}/compute`, {

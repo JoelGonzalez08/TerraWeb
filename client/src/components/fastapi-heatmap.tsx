@@ -388,6 +388,11 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
       console.log(`📊 Area: ${widthM}m x ${heightM}m`);
       console.log(`📅 Period: ${startDate} to ${endDate}`);
       console.log(`📈 Index: ${index}`);
+      console.log(`🔍 DEBUG - Current state values:`);
+      console.log(`  - startDate from state: "${startDate}"`);
+      console.log(`  - endDate from state: "${endDate}"`);
+      console.log(`  - startDate type: ${typeof startDate}`);
+      console.log(`  - endDate type: ${typeof endDate}`);
       
       // Normalizar el índice a minúsculas para evitar problemas de coincidencia
       const normalizedIndex = index.toLowerCase();
@@ -404,6 +409,10 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
       };
 
       console.log('📦 Time-series params:', JSON.stringify(params, null, 2));
+      console.log('🔍 DEBUG - Params object breakdown:');
+      console.log(`  - params.start: "${params.start}"`);
+      console.log(`  - params.end: "${params.end}"`);
+      console.log(`  - Are dates the same as state? start=${params.start === startDate}, end=${params.end === endDate}`);
 
       const result = await fastapiService.getTimeSeries(params);
       
@@ -910,7 +919,14 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
                     <span>Serie Temporal</span>
                   </div>
                   <Button 
-                    onClick={loadTimeSeriesData}
+                    onClick={() => {
+                      console.log('🔘 BOTÓN GENERAR SERIE CLICKEADO');
+                      console.log(`🔍 Fechas en el momento del click:`);
+                      console.log(`  - startDate: "${startDate}"`);
+                      console.log(`  - endDate: "${endDate}"`);
+                      console.log(`  - index: "${index}"`);
+                      loadTimeSeriesData();
+                    }}
                     disabled={loading || !index}
                     className={`bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 ${isMobile ? 'h-8 text-xs px-3' : ''}`}
                   >
