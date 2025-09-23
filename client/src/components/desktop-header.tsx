@@ -27,8 +27,7 @@ export default function DesktopHeader() {
           <div className="flex items-center space-x-3">
             <img src="/terra-logo.svg" alt="Terra Logo" className="w-12 h-12" />
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Terra</h1>
-              <p className="text-sm text-muted-foreground">Recolección de Datos Ambientales</p>
+              <h1 className="text-2xl font-bold text-foreground">TERRA-IO</h1>
             </div>
           </div>
           <div className="flex items-center space-x-6">

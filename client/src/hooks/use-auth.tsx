@@ -4,9 +4,27 @@ import {
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
-import { insertUserSchema, User as SelectUser } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+
+// Tipo de usuario para el frontend (sin password)
+export type User = {
+  id: string;
+  username: string;
+  role: string;
+};
+
+const FASTAPI_BASE_URL = 'http://localhost:8000';
+
+// Helper para obtener headers de autorización
+export function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('access_token');
+  if (!token) return {};
+  
+  return {
+    'Authorization': `Bearer ${token}`
+  };
+}
 
 export type UserRole = "admin" | "technician" | "user";
 
@@ -41,10 +59,10 @@ export function canAccessAdvancedSettings(userRole: string): boolean {
 }
 
 type AuthContextType = {
-  user: SelectUser | null;
+  user: User | null;
   isLoading: boolean;
   error: Error | null;
-  loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
+  loginMutation: UseMutationResult<User, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   hasRole: (requiredRole: UserRole) => boolean;
   canAccessAnalytics: () => boolean;
@@ -64,26 +82,27 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  
   const {
     data: user,
     error,
     isLoading,
-  } = useQuery<SelectUser | null>({
-    queryKey: ["/api/user"],
+  } = useQuery<User | null>({
+    queryKey: ["user"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/user", {
-          credentials: "include",
-        });
-        if (response.status === 401) {
-          return null; // Not authenticated
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('access_token');
+        
+        if (!storedUser || !storedToken) {
+          return null;
         }
-        if (!response.ok) {
-          throw new Error("Failed to fetch user");
-        }
-        return await response.json();
+        
+        return JSON.parse(storedUser);
       } catch (error) {
-        return null; // Return null if there's an error (user not authenticated)
+        localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
+        return null;
       }
     },
     retry: false,
@@ -91,24 +110,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const response = await fetch("/api/login", {
+      const formData = new URLSearchParams();
+      formData.append('username', credentials.username);
+      formData.append('password', credentials.password);
+      
+      const response = await fetch(`${FASTAPI_BASE_URL}/login`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        credentials: "include",
-        body: JSON.stringify(credentials),
+        body: formData,
       });
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Error de inicio de sesión");
+        throw new Error(error.detail || "Error de inicio de sesión");
       }
       
-      return await response.json();
+      const userData = await response.json();
+      
+      // Guardar en localStorage
+      localStorage.setItem('user', JSON.stringify({
+        id: userData.id,
+        username: userData.username,
+        role: userData.role
+      }));
+      localStorage.setItem('access_token', userData.access_token);
+      
+      return {
+        id: userData.id,
+        username: userData.username,
+        role: userData.role
+      };
     },
-    onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (user: User) => {
+      queryClient.setQueryData(["user"], user);
       toast({
         title: "¡Bienvenido!",
         description: `Sesión iniciada correctamente como ${user.username}`,
@@ -125,17 +161,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Error al cerrar sesión");
-      }
+      // Simplemente limpiar localStorage - no necesitamos llamar a FastAPI
+      localStorage.removeItem('user');
+      localStorage.removeItem('access_token');
     },
     onSuccess: () => {
-      queryClient.setQueryData(["/api/user"], null);
+      queryClient.setQueryData(["user"], null);
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión correctamente",

@@ -37,8 +37,7 @@ export default function AuthPage() {
           <div className="text-center space-y-4">
             <img src="/terra-logo.svg" alt="Terra Logo" className="w-20 h-20 mx-auto" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Terra</h1>
-              <p className="text-muted-foreground">Recolección de Datos Ambientales</p>
+              <h1 className="text-3xl font-bold text-foreground">TERRA-IO</h1>
             </div>
           </div>
 
@@ -92,8 +91,7 @@ export default function AuthPage() {
         <div className="max-w-md space-y-8">
           <div className="space-y-4">
             <img src="/terra-logo.svg" alt="Terra Logo" className="w-24 h-24" />
-            <h1 className="text-5xl font-bold">Terra.io</h1>
-            <p className="text-xl opacity-90">Plataforma de Recolección y Análisis de Datos Ambientales</p>
+            <h1 className="text-5xl font-bold">TERRA-IO</h1>
           </div>
 
           <div className="space-y-6">

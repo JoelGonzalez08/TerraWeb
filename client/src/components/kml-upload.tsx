@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, MapPin, Trash2, FileText, CheckCircle, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getAuthHeaders } from "@/hooks/use-auth";
 
 interface ParcelData {
   success: boolean;
@@ -29,7 +30,7 @@ interface KMLUploadProps {
   compact?: boolean;
 }
 
-const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_URL || 'http://172.17.16.104:8000';
+const FASTAPI_BASE_URL = 'http://localhost:8000';
 
 // KML precargados disponibles
 const PRELOADED_KML_OPTIONS = [
@@ -68,6 +69,9 @@ export default function KMLUpload({ onParcelLoaded, currentParcel, onClearParcel
 
       const response = await fetch(`${FASTAPI_BASE_URL}/upload-kml`, {
         method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+        },
         body: formData,
       });
 
@@ -134,6 +138,9 @@ export default function KMLUpload({ onParcelLoaded, currentParcel, onClearParcel
 
       const uploadResponse = await fetch(`${FASTAPI_BASE_URL}/upload-kml`, {
         method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+        },
         body: formData,
       });
 

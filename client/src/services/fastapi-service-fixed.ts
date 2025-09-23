@@ -1,4 +1,6 @@
 // Tipos para la API de FastAPI (basados en tu esquema)
+import { getAuthHeaders } from '@/hooks/use-auth';
+
 export interface FastAPIRequest {
   geometry?: Record<string, any>;  // opcional
   lon: number;
@@ -67,7 +69,7 @@ export interface TimeSeriesResponse {
 export class FastAPIService {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://172.17.16.104:8000') {
+  constructor(baseUrl: string = 'http://localhost:8000') {
     this.baseUrl = baseUrl;
   }
 
@@ -108,6 +110,9 @@ export class FastAPIService {
       // Intentar conectar a /docs que debería estar disponible en FastAPI
       const response = await fetch(`${this.baseUrl}/docs`, {
         method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       return response.ok;
     } catch (error) {
@@ -333,6 +338,4 @@ export class FastAPIService {
   }
 }
 
-export const fastapiService = new FastAPIService(
-  import.meta.env.VITE_FASTAPI_URL || 'http://172.17.16.104:8000'
-);
+export const fastapiService = new FastAPIService('http://localhost:8000');
