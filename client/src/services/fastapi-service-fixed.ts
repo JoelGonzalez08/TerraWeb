@@ -10,7 +10,7 @@ export interface FastAPIRequest {
   height_m: number;
   start: string;  // formato: "YYYY-MM-DD"
   end: string;    // formato: "YYYY-MM-DD"
-  mode: "heatmap";
+  mode: "heatmap" | "series";
   index: "rgb_composite" | "ndvi" | "ndwi" | "ndmi" | "evi" | "savi" | "gci";
   cloud_pct: number;  // 0-100
 }
@@ -147,21 +147,34 @@ export class FastAPIService {
   // Nuevo método para time-series
   async getTimeSeries(params: TimeSeriesRequest): Promise<TimeSeriesResponse> {
     try {
+      // Convertir TimeSeriesRequest a FastAPIRequest con mode "series"
+      const computeParams: FastAPIRequest = {
+        lon: params.lon,
+        lat: params.lat,
+        width_m: params.width_m,
+        height_m: params.height_m,
+        start: params.start,
+        end: params.end,
+        mode: "series" as const,
+        index: params.index,
+        cloud_pct: 70 // Valor más permisivo para series temporales (era 30)
+      };
+
       console.log('🚀 Sending time-series request to FastAPI:', {
-        url: `${this.baseUrl}/time-series`,
+        url: `${this.baseUrl}/compute`,
         method: 'POST',
-        params: params
+        params: computeParams
       });
       
       console.log('📦 Time-series JSON payload:');
-      console.log(JSON.stringify(params, null, 2));
+      console.log(JSON.stringify(computeParams, null, 2));
 
-      const response = await fetch(`${this.baseUrl}/time-series`, {
+      const response = await fetch(`${this.baseUrl}/compute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify(computeParams),
       });
 
       console.log('📡 Time-series response status:', response.status);

@@ -260,8 +260,8 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
   // Estados para configuración de FastAPI
   const [widthM, setWidthM] = useState<number>(1000);   // Área inicial 1000m
   const [heightM, setHeightM] = useState<number>(1000); // Área inicial 1000m
-  const [startDate, setStartDate] = useState<string>("2023-01-01");
-  const [endDate, setEndDate] = useState<string>("2023-12-31");
+  const [startDate, setStartDate] = useState<string>("2024-01-01");
+  const [endDate, setEndDate] = useState<string>("2024-06-30");
   const [index, setIndex] = useState<string>("none");
   const cloudPct = 30;   // Filtro de nubes fijo en 30%
   
@@ -438,7 +438,21 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
       
     } catch (error) {
       console.error('❌ Error loading time-series data:', error);
-      setError(error instanceof Error ? error.message : 'Error conectando con FastAPI');
+      
+      let errorMessage = 'Error conectando con FastAPI';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('No se encontraron imágenes')) {
+          errorMessage = `No hay datos disponibles para ${index?.toUpperCase()} en el período ${startDate} - ${endDate}. 
+          Intenta: • Ampliar el rango de fechas
+          • Cambiar a otro índice (NDVI suele tener más disponibilidad)
+          • Verificar que la ubicación tenga cobertura de Sentinel-2`;
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -769,8 +783,40 @@ export default function AlphaEarthMap({ isMobile = false }: AlphaEarthMapProps) 
 
                 {/* Error display */}
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg space-y-3">
                     <p className="text-red-700 text-sm">{error}</p>
+                    {error.includes('No se encontraron imágenes') && (
+                      <div className="flex flex-col space-y-2">
+                        <p className="text-xs text-red-600 font-medium">Soluciones rápidas:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {index !== 'ndvi' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                setIndex('ndvi');
+                                setError(null);
+                              }}
+                            >
+                              🌱 Cambiar a NDVI
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs"
+                            onClick={() => {
+                              setStartDate('2024-01-01');
+                              setEndDate('2024-06-30');
+                              setError(null);
+                            }}
+                          >
+                            📅 Usar fechas 2024
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
